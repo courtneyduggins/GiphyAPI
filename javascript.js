@@ -3,12 +3,14 @@
 
 var topics = ["cat", "dog", "bird", "rabbit", "lion", "tiger", "bear", "elephant", "giraffe", "zebra"];
 
-function displayAnimalGiphys(){
+$(document).on("click", ".animals", function(){
 
-var animal = $(this).attr("data-name");    
+var animal = $(this).data("name");    
 //link URL needed to query the database...
-var queryURL = "https://api.giphy.com/v1/gifs/trending?api_key=6OfxpYAgLCEdQlStVGkzhw6yl6RkQFPL";
+var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=6OfxpYAgLCEdQlStVGkzhw6yl6RkQFPL&q=" + animal + "&limit=10&offset=0&rating=G&lang=en"
 
+
+  console.log(queryURL);
 //run ajax call to the Giphy API
 
     $.ajax({
@@ -17,12 +19,13 @@ var queryURL = "https://api.giphy.com/v1/gifs/trending?api_key=6OfxpYAgLCEdQlStV
     }).then(function(response) {
       console.log(response);
 
+      var results = response.data;
+
+      $("#animals").empty();
+
       for (var i = 0; i < results.length; i++) {
 
-        // Only taking action if the photo has an appropriate rating
-        if (results[i].rating !== "r" && results[i].rating !== "pg-13") {
-          // Creating a div with the class "item"
-          var gifDiv = $("<div class='item'>");
+          var gifDiv = $("<div>");
 
           // Storing the result item's rating
           var rating = results[i].rating;
@@ -31,25 +34,25 @@ var queryURL = "https://api.giphy.com/v1/gifs/trending?api_key=6OfxpYAgLCEdQlStV
           var p = $("<p>").text("Rating: " + rating);
 
           // Creating an image tag
-          var personImage = $("<img>");
+          var animalImage = $("<img>");
 
           // Giving the image tag an src attribute of a proprty pulled off the
           // result item
-          personImage.attr("src", results[i].images.fixed_height.url);
+          animalImage.attr("src", results[i].images.fixed_height.url);
 
-          // Appending the paragraph and personImage we created to the "gifDiv" div we created
+          // Appending the paragraph and animalImage we created to the "gifDiv" div we created
           gifDiv.append(p);
-          gifDiv.append(personImage);
+          gifDiv.append(animalImage);
 
-          // Prepending the gifDiv to the "#gifs-appear-here" div in the HTML
-          $("#gifs-appear-here").prepend(gifDiv);
-        }
+          // Prepending the gifDiv to the "#animals" div in the HTML
+          $("#animals").prepend(gifDiv);
+        // }
       }
     });
     //   $("#animals").text(JSON.stringify(response));
     
 
-}
+});
 
 
 function renderButtons() {    
@@ -64,6 +67,10 @@ for (var i = 0; i < topics.length; i++){
           // Adding a data-attribute
           buttons.attr("data-name", topics[i]);
           // Providing the initial button text
+          buttons.attr("src", $(this).data("animate"));
+
+          buttons.attr(("data-state"), $(this).attr("data-state", "animate"));
+
           buttons.text(topics[i]);
           // Adding the button to the animalButtons div
           $("#animalButtons").append(buttons);
@@ -92,7 +99,30 @@ $("#addAnimal").on("click", function(event) {
     
   });
 
-$(document).on("click", ".animals", displayAnimalGiphys);
+$(document).on("click", ".animals", function (){
+
+  // displayAnimalGiphys();
+
+  var state = $(this).attr("data-state");
+  
+  if (state == "animate") {
+
+    $(this).attr("src", $(this).data("still"));
+    $(this).attr("data-state", "still");
+  
+  
+  }
+
+  else {
+
+    $(this).attr("src", $(this).data("animate"));
+    $(this).attr("data-state", "animate");
+
+  }
+
+  
+  
+});
 
 renderButtons();
 
@@ -100,3 +130,4 @@ renderButtons();
 //when user clicks on an animal gif, the picture plays
 //when user clicks the image that playing, video stops playing
 //user can input an animal to create another button and search for another animal
+
